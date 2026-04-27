@@ -180,8 +180,25 @@ SendMail(){
 #=================================> Insert favorite routine here
 #=================================> Insert favorite routine here
 #=================================> Insert favorite routine here
+    local MAIL_CONTENT_FILE=$1
+    local SMTP="smtp.gmail.com:587" # Use the smtp server of your choice
+    local FROM="router@domain.com" # Replace with your email
+    local FROMNAME="Asuswrt-Merlin Router"
+    local TO="your-email@domain.com" # Replace with destination email
+    local USER="your-username"
+    local PASS="your-password"
 
-    Say "You need to edit this script and add the Sendmail function first!"
+    local TEMP_MAIL="/tmp/mail_to_send.txt"
+    echo "Subject: WebHistory Report" > $TEMP_MAIL
+    echo "From: \"$FROMNAME\"<$FROM>" >> $TEMP_MAIL
+    echo "Date: $(date -R)" >> $TEMP_MAIL
+    echo "" >> $TEMP_MAIL
+
+    cat "$MAIL_CONTENT_FILE" >> $TEMP_MAIL
+
+    cat $TEMP_MAIL | /usr/sbin/sendmail -S"$SMTP" -f"$FROM" $TO -au"$USER" -ap"$PASS"
+
+    rm $TEMP_MAIL
 
     return 0
 
