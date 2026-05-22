@@ -58,3 +58,14 @@ This repository now includes an `.asp` wrapper and an installation script (`inst
    ```
 5. Navigate to your Router's IP Address and log in. You will find a new tab in the **Tools** section called **WebHistory**.
 6. The page allows running filtering queries dynamically from the web browser. The logic utilizes `apply.cgi` natively to invoke backend script execution securely.
+
+### AMTM Execution
+
+To centralize script management, you can invoke this directly through `amtm` (Asuswrt-Merlin Terminal Menu).
+Running the `install_webui.sh` script registers the web ui tab instantly:
+
+```bash
+# Via SSH on your Asuswrt-Merlin router:
+amtm
+```
+Within the amtm interface, if you have custom scripts configured or run local shell scripts, simply execute `/jffs/scripts/install_webui.sh`. This ensures the Web UI hooks properly into the Asuswrt-Merlin router portals securely.
