@@ -31,30 +31,34 @@ function initial(){
 }
 
 function runReport(args) {
-    document.getElementById("report_output").innerHTML = "Generating report... Please wait.\n";
-    // Using Asuswrt-Merlin's apply.cgi to trigger the script securely
-    // In a real addon, we would map an nvram variable or a custom CGI script that executes WebHistory_Report.sh
-    // For this generic addon, we use apply.cgi action_mode=Refresh but the preferred way is via a custom handler or nvram flag.
+    document.getElementById("report_output").innerHTML = "Generating report... Please wait.
+";
 
-    // We simulate the output display area where traffic is kept secure, internal to the router.
-    // The data never leaves the router since the .asp page is hosted directly on the router's local HTTP/S server.
-
-    // In actual implementation, typically a proxy shell script executes the report and stores it in /tmp/report.txt,
-    // which this JS would then fetch via $.get('/user/report.txt').
+    // Securely push args to NVRAM so the custom script can read them
+    // Then invoke the custom action script via apply.cgi
     $.ajax({
-        url: '/apply.cgi',
-        type: 'POST',
-        data: 'action_mode=Refresh&action_script=custom_webhistory&action_wait=5&SystemCmd=WebHistory_Report.sh ' + args,
+        url: "/apply.cgi",
+        type: "POST",
+        data: "action_mode=Refresh&action_script=custom_webhistory&custom_webhistory_args=" + encodeURIComponent(args),
         success: function() {
-            setTimeout(fetchResults, 5000);
+            setTimeout(fetchResults, 4000);
         }
     });
 }
 
 function fetchResults() {
-    // Assuming the custom action_script generated /tmp/webhistory_output.txt
-    // We would need to symlink it or serve it via the WebUI
-    document.getElementById("report_output").innerHTML += "Report execution signaled. In a full integration, results are displayed here.\n";
+    // Fetch the internally generated and symlinked report from the router securely
+    $.ajax({
+        url: "/user/webhistory_output.txt",
+        cache: false,
+        success: function(data) {
+            document.getElementById("report_output").innerHTML = data;
+        },
+        error: function() {
+            document.getElementById("report_output").innerHTML += "Failed to read report output, or it is taking longer than expected.
+";
+        }
+    });
 }
 </script>
 </head>

@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Asuswrt-Merlin Custom Script Wrapper for WebHistory
+# This script reads arguments stored in NVRAM set by the WebUI
+# and safely executes WebHistory_Report.sh, logging the output to a local tmp file.
+
+ARGS=$(nvram get custom_webhistory_args)
+
+# Sanitize/Clear args quickly to prevent loop attacks
+nvram unset custom_webhistory_args
+nvram commit
+
+REPORT_PATH="/tmp/webhistory_output.txt"
+SCRIPT_PATH="/jffs/scripts/WebHistory_Report.sh"
+
+if [ -f "$SCRIPT_PATH" ]; then
+    # Clear old report
+    > "$REPORT_PATH"
+    echo "Running: $SCRIPT_PATH $ARGS" >> "$REPORT_PATH"
+
+    # Execute securely
+    $SCRIPT_PATH $ARGS >> "$REPORT_PATH" 2>&1
+
+    echo "" >> "$REPORT_PATH"
+    echo "Report execution completed at $(date)" >> "$REPORT_PATH"
+else
+    echo "ERROR: WebHistory_Report.sh not found at $SCRIPT_PATH" > "$REPORT_PATH"
+fi
