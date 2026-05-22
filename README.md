@@ -38,3 +38,23 @@ This script can be fully integrated into a modern Asuswrt-Merlin deployment (e.g
 - **Filter by IP**: `./WebHistory_Report.sh ip=192.168.1.1`
 - **Filter by URL**: `./WebHistory_Report.sh url=youtube`
 - **Export to CSV**: `./WebHistory_Report.sh nofilter report=WebReport.csv nodisplay`
+
+## WebUI Addon Integration
+
+This repository now includes an `.asp` wrapper and an installation script (`install_webui.sh`) that hooks into the Asuswrt-Merlin Addons API. It provides a secure, fully local web view for the reporting script. The traffic data is parsed, interpreted, and rendered entirely within the router's local HTTP/S server, ensuring no external leaks.
+
+### WebUI Setup Instructions
+
+1. Ensure the router firmware is version 384.15 or newer (which supports `am_addons`).
+2. Transfer `WebHistory.asp` and `install_webui.sh` to the router (e.g., `/jffs/scripts/`).
+3. Run the installer:
+   ```bash
+   chmod +x /jffs/scripts/install_webui.sh
+   /jffs/scripts/install_webui.sh
+   ```
+4. To persist this across reboots, add the installer script invocation to your `/jffs/scripts/services-start` file:
+   ```bash
+   echo "/jffs/scripts/install_webui.sh" >> /jffs/scripts/services-start
+   ```
+5. Navigate to your Router's IP Address and log in. You will find a new tab in the **Tools** section called **WebHistory**.
+6. The page allows running filtering queries dynamically from the web browser. The logic utilizes `apply.cgi` natively to invoke backend script execution securely.
