@@ -10,12 +10,13 @@ ARGS=$(nvram get custom_webhistory_args)
 nvram unset custom_webhistory_args
 nvram commit
 
-REPORT_PATH="/tmp/webhistory_output.txt"
+# Rather than a txt file, create a fake .asp endpoint in user space which httpd definitely serves
+REPORT_PATH="/www/user/webhistory_output.asp"
 SCRIPT_PATH="/jffs/scripts/WebHistory_Report.sh"
 
 if [ -f "$SCRIPT_PATH" ]; then
     # Clear old report
-    > "$REPORT_PATH"
+    echo "<!-- WebHistory Local Report Secure Output -->" > "$REPORT_PATH"
     echo "Running: $SCRIPT_PATH $ARGS" >> "$REPORT_PATH"
 
     # Execute securely

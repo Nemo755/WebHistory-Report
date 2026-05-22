@@ -38,11 +38,12 @@ logger -t "WebHistory_Addon" "Mounting WebHistory.asp as $am_webui_page"
 cp custom_webhistory /jffs/scripts/custom_webhistory
 chmod +x /jffs/scripts/custom_webhistory
 
-# Symlink output for WebUI to read securely via /user/ path
-ln -sf /tmp/webhistory_output.txt /www/user/webhistory_output.txt
+# Prepare output location in secure user dir
+mkdir -p /www/user
+# Initialize blank ASP page for httpd cache
+echo "<!-- WebHistory Initialized -->" > /www/user/webhistory_output.asp
 
 # Copy custom page
-mkdir -p /www/user
 cp /jffs/addons/webhistory_report/WebHistory.asp /www/user/$am_webui_page
 
 # Copy menuTree (if no other script has done it yet) so we can modify it

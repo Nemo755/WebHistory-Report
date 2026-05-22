@@ -31,8 +31,7 @@ function initial(){
 }
 
 function runReport(args) {
-    document.getElementById("report_output").innerHTML = "Generating report... Please wait.
-";
+    document.getElementById("report_output").innerHTML = "Generating report... Please wait.\n";
 
     // Securely push args to NVRAM so the custom script can read them
     // Then invoke the custom action script via apply.cgi
@@ -47,16 +46,16 @@ function runReport(args) {
 }
 
 function fetchResults() {
-    // Fetch the internally generated and symlinked report from the router securely
+    // Fetch the internally generated and symlinked report from the router securely.
+    // Notice we use an .asp extension instead of .txt to guarantee httpd handles it flawlessly.
     $.ajax({
-        url: "/user/webhistory_output.txt",
+        url: "/user/webhistory_output.asp",
         cache: false,
         success: function(data) {
             document.getElementById("report_output").innerHTML = data;
         },
         error: function() {
-            document.getElementById("report_output").innerHTML += "Failed to read report output, or it is taking longer than expected.
-";
+            document.getElementById("report_output").innerHTML += "Failed to read report output, or it is taking longer than expected.\n";
         }
     });
 }
