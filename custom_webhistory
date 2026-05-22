@@ -12,7 +12,7 @@ nvram commit
 
 # Rather than a txt file, create a fake .asp endpoint in user space which httpd definitely serves
 REPORT_PATH="/www/user/webhistory_output.asp"
-SCRIPT_PATH="/jffs/scripts/WebHistory_Report.sh"
+SCRIPT_PATH="/opt/bin/WebHistory_Report.sh"
 
 if [ -f "$SCRIPT_PATH" ]; then
     # Clear old report

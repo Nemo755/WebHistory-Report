@@ -35,7 +35,10 @@ fi
 logger -t "WebHistory_Addon" "Mounting WebHistory.asp as $am_webui_page"
 
 # Deploy custom action script wrapper
+mkdir -p /opt/bin/
 cp custom_webhistory /jffs/scripts/custom_webhistory
+cp WebHistory_Report.sh /opt/bin/WebHistory_Report.sh
+chmod +x /opt/bin/WebHistory_Report.sh
 chmod +x /jffs/scripts/custom_webhistory
 
 # Prepare output location in secure user dir
