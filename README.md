@@ -16,7 +16,7 @@ This script can be fully integrated into a modern Asuswrt-Merlin deployment (e.g
 
 1. **Download via SSH**: SSH into your Asuswrt-Merlin router and download the monolithic installer script directly using `curl`. There is no need to transfer files manually.
    ```bash
-   curl -Lo /jffs/scripts/webhistory.sh https://raw.githubusercontent.com/MartineauUK/WebHistory-Report/master/webhistory.sh
+   curl -Lo /jffs/scripts/webhistory.sh https://raw.githubusercontent.com/Nemo755/WebHistory-Report/master/webhistory.sh
    ```
 2. **Execute Interactive Installer via AMTM**: This script is designed as a standalone installer and configuration menu. You can add it directly to AMTM's personal scripts menu.
    ```bash
