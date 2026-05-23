@@ -1399,6 +1399,15 @@ EOF3
         mount -o bind /tmp/menuTree.js /www/require/modules/menuTree.js
     fi
 
+    # Deploy native bash completions
+    mkdir -p /jffs/configs/
+    if [ ! -f /jffs/configs/profile.add ]; then
+        touch /jffs/configs/profile.add
+    fi
+    if ! grep -q "WebHistory_Report.sh" /jffs/configs/profile.add; then
+        echo "complete -W \"ip= url= mac= count nofilter email nodisplay showsql flush purgeallreset backup sqldb= report= mode=or noscript date= time= sortby=\" WebHistory_Report.sh" >> /jffs/configs/profile.add
+    fi
+
     # Save the mount point for cron usage
     nvram set webhistory_page="$am_webui_page"
     nvram commit
@@ -1448,6 +1457,8 @@ remove_addon() {
     rm -f /www/user/webhistory_output.asp
     cru d WebHistoryAuto
     sed -i "/WebHistoryAuto/d" /jffs/scripts/services-start
+
+    sed -i "/WebHistory_Report.sh/d" /jffs/configs/profile.add 2>/dev/null
 
     PAGE=$(nvram get webhistory_page)
     if [ -n "$PAGE" ]; then
