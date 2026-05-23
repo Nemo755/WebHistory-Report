@@ -24,10 +24,11 @@ This script can be fully integrated into a modern Asuswrt-Merlin deployment (e.g
    # Open AMTM
    amtm
    ```
-3. Type `j` in the AMTM menu to access custom personal scripts.
-4. Add `/jffs/scripts/webhistory.sh` as a shortcut.
-5. Run the shortcut from AMTM to open the WebHistory interface.
-6. **AMTM Menu**: From the script menu, you can:
+3. Type `p` in the AMTM menu to access Personal script settings.
+4. Press `1` to Add script to amtm.
+5. Enter the path: `/jffs/scripts/webhistory.sh`
+6. Run the shortcut (e.g. `p1`) from AMTM to open the interactive installer & configuration menu.
+7. **AMTM Menu**: From the script menu, you can:
    - **Install** the Addon: This safely deploys heavy IO logic to your USB (`/opt/bin/`) and registers the secure `.asp` WebUI tab in your router's web portal.
    - **Configure Auto-Refresh**: Set a CRON job (e.g., every 5 minutes) to automatically pull and push the newest traffic history securely to your web portal in the background without needing to press "Run" manually.
    - **Uninstall**: Cleanly removes all Addon artifacts.
