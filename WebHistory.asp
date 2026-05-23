@@ -26,9 +26,16 @@
     }
 </style>
 <script>
+
+var refreshInterval;
+
 function initial(){
     show_menu();
+    // Start polling the output page every 30 seconds to catch cron updates natively
+    fetchResults();
+    refreshInterval = setInterval(fetchResults, 30000);
 }
+
 
 function runReport(args) {
     document.getElementById("report_output").innerHTML = "Generating report... Please wait.\n";

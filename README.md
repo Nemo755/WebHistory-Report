@@ -9,63 +9,29 @@ This script can be fully integrated into a modern Asuswrt-Merlin deployment (e.g
 
 1. **Asuswrt-Merlin**: Ensure you are running a modern version of Asuswrt-Merlin.
 2. **AiProtection**: TrendMicro AiProtection "Web History" must be enabled in the router's Web GUI for the database (`/jffs/.sys/WebHistory.db`) to populate.
-3. **Entware**: Entware must be installed. You can install it via the `amtm` utility in the SSH terminal.
-   - `sqlite3` is required to parse the database. The script attempts to auto-install it via `opkg` if missing, but having Entware set up beforehand is necessary.
+3. **Entware**: Entware must be installed to a dedicated USB drive. You can install it via the `amtm` utility in the SSH terminal.
+   - `sqlite3` is required to parse the database. The script auto-installs it via `opkg` if missing.
 
 ### Setup Instructions
 
-1. **Download the Script**: Place `WebHistory_Report.sh` in a persistent location on your router, such as `/jffs/scripts/`.
+1. **Transfer Files**: Download `webhistory.sh`, `WebHistory_Report.sh`, `custom_webhistory`, and `WebHistory.asp` to a location on your router (e.g., `/jffs/scripts/`).
+2. **Execute Interactive Installer**: Use the new interactive AMTM-style script.
    ```bash
-   mkdir -p /jffs/scripts
-   # Download or copy WebHistory_Report.sh to /jffs/scripts/
-   chmod +x /jffs/scripts/WebHistory_Report.sh
+   chmod +x /jffs/scripts/webhistory.sh
+   /jffs/scripts/webhistory.sh
    ```
+3. **AMTM Menu**: From the script menu, you can:
+   - **Install** the Addon: This safely deploys heavy IO logic to your USB (`/opt/bin/`) and registers the secure `.asp` WebUI tab in your router's web portal.
+   - **Configure Auto-Refresh**: Set a CRON job (e.g., every 5 minutes) to automatically pull and push the newest traffic history securely to your web portal in the background without needing to press "Run" manually.
+   - **Uninstall**: Cleanly removes all Addon artifacts.
 
-2. **Configure Email (Optional)**: If you want to receive reports via email, edit the `SendMail` function inside `WebHistory_Report.sh`. Provide your SMTP details, sender email, and recipient email.
-   - Alternatively, if you use `amtm`, you can leverage its email configuration features.
+### Adding to AMTM Custom Menu
 
-3. **Automation via Cron**: To make the reports accessible regularly, you can schedule the script to run periodically using the `cru` command (cron utility for Asuswrt-Merlin).
-   For example, to run a daily report at 11:50 PM and email it:
-   ```bash
-   cru a WebHistoryDaily "50 23 * * * /jffs/scripts/WebHistory_Report.sh nofilter email"
-   ```
-   To ensure this cron job persists across reboots, add the `cru` command to your `/jffs/scripts/services-start` script.
+To quickly access this installer script inside `amtm`:
+1. Run `amtm`.
+2. Type `j` to access custom scripts.
+3. Add `/jffs/scripts/webhistory.sh` as a shortcut.
 
-### Usage Examples
+### Security Note
 
-- **List today's history**: `./WebHistory_Report.sh`
-- **Count today's history**: `./WebHistory_Report.sh count`
-- **Filter by IP**: `./WebHistory_Report.sh ip=192.168.1.1`
-- **Filter by URL**: `./WebHistory_Report.sh url=youtube`
-- **Export to CSV**: `./WebHistory_Report.sh nofilter report=WebReport.csv nodisplay`
-
-## WebUI Addon Integration
-
-This repository now includes an `.asp` wrapper and an installation script (`install_webui.sh`) that hooks into the Asuswrt-Merlin Addons API. It provides a secure, fully local web view for the reporting script. The traffic data is parsed, interpreted, and rendered entirely within the router's local HTTP/S server, ensuring no external leaks.
-
-### WebUI Setup Instructions
-
-1. Ensure the router firmware is version 384.15 or newer (which supports `am_addons`).
-2. Transfer `WebHistory.asp` and `install_webui.sh` to the router (e.g., `/jffs/scripts/`).
-3. Run the installer:
-   ```bash
-   chmod +x /jffs/scripts/install_webui.sh
-   /jffs/scripts/install_webui.sh
-   ```
-4. To persist this across reboots, add the installer script invocation to your `/jffs/scripts/services-start` file:
-   ```bash
-   echo "/jffs/scripts/install_webui.sh" >> /jffs/scripts/services-start
-   ```
-5. Navigate to your Router's IP Address and log in. You will find a new tab in the **Tools** section called **WebHistory**.
-6. The page allows running filtering queries dynamically from the web browser. The logic utilizes `apply.cgi` natively to invoke backend script execution securely.
-
-### AMTM Execution
-
-To centralize script management, you can invoke this directly through `amtm` (Asuswrt-Merlin Terminal Menu).
-Running the `install_webui.sh` script registers the web ui tab instantly:
-
-```bash
-# Via SSH on your Asuswrt-Merlin router:
-amtm
-```
-Within the amtm interface, if you have custom scripts configured or run local shell scripts, simply execute `/jffs/scripts/install_webui.sh`. This ensures the Web UI hooks properly into the Asuswrt-Merlin router portals securely.
+Traffic is parsed completely locally via deep packet inspection (DPI) looking at SNI/Host headers. The endpoint MACs are resolved automatically using your local ARP/DHCP tables. No traffic data is ever sent externally; all reports remain confined to `/opt/` and authenticated local HTTPD rendering.
