@@ -63,6 +63,8 @@ install_addon() {
 <script type="text/javascript" src="/popup.js"></script>
 <script type="text/javascript" src="/help.js"></script>
 <script type="text/javascript" src="/jquery.js"></script>
+<script language="JavaScript" type="text/javascript" src="/js/httpApi.js"></script>
+<script language="JavaScript" type="text/javascript" src="client_function.js"></script>
 <style>
     #report_output {
         width: 95%;
@@ -81,6 +83,22 @@ install_addon() {
 var refreshInterval;
 
 function initial(){
+    // Populate client list dropdown
+    if (typeof clientList !== "undefined") {
+        var ipSelect = document.getElementById("filter_ip_select");
+        for (var i = 0; i < clientList.length; i++) {
+            var mac = clientList[i];
+            var clientObj = clientList[mac];
+            if (clientObj && clientObj.ip) {
+                var name = clientObj.name || clientObj.nickName || clientObj.vendor || mac;
+                var opt = document.createElement("option");
+                opt.value = clientObj.ip;
+                opt.innerHTML = name + " (" + clientObj.ip + ")";
+                ipSelect.appendChild(opt);
+            }
+        }
+    }
+
     show_menu();
     // Start polling the output page every 30 seconds to catch cron updates natively
     fetchResults();
@@ -91,16 +109,19 @@ function initial(){
 function runReport(args) {
     document.getElementById("report_output").innerHTML = "Generating report... Please wait.\n";
 
-    // Securely push args to NVRAM so the custom script can read them
-    // Then invoke the custom action script via apply.cgi
-    $.ajax({
-        url: "/apply.cgi",
-        type: "POST",
-        data: "action_mode=Refresh&action_script=custom_webhistory&custom_webhistory_args=" + encodeURIComponent(args),
-        success: function() {
-            setTimeout(fetchResults, 4000);
-        }
-    });
+    // Use native Asuswrt-Merlin hidden form submit to apply.cgi to bypass infinite loading stall
+    document.form.current_page.value = location.pathname;
+    document.form.next_page.value = location.pathname;
+    document.form.custom_webhistory_args.value = args;
+
+    // Wait for the hidden iframe to finish loading apply.cgi before querying results
+    document.getElementById("hidden_frame").onload = function() {
+        setTimeout(fetchResults, 2000);
+        // Clear onload to avoid loops
+        document.getElementById("hidden_frame").onload = null;
+    };
+
+    document.form.submit();
 }
 
 function fetchResults() {
@@ -124,10 +145,19 @@ function fetchResults() {
 <div id="Loading" class="popup_bg"></div>
 <iframe name="hidden_frame" id="hidden_frame" src="" width="0" height="0" frameborder="0"></iframe>
 
-<form method="post" name="form" id="ruleForm" action="/start_apply.htm" target="hidden_frame">
+<form method="post" name="form" id="ruleForm" action="apply.cgi" target="hidden_frame">
+<input type="hidden" name="current_page" value="">
+<input type="hidden" name="next_page" value="">
+<input type="hidden" name="action_mode" value="Refresh">
+<input type="hidden" name="action_script" value="custom_webhistory">
+<input type="hidden" name="action_wait" value="5">
+<input type="hidden" name="custom_webhistory_args" value="">
+<input type="hidden" name="preferred_lang" id="preferred_lang" value="<#preferred_lang#>">
+<input type="hidden" name="firmver" value="<#firmver#>">
+
 <table class="content" align="center" cellpadding="0" cellspacing="0">
   <tr>
-    <td width="17">&nbsp;</td>
+    <td width="23">&nbsp;</td>
     <td valign="top" width="202">
       <div id="mainMenu"></div>
       <div id="subMenu"></div>
@@ -149,7 +179,12 @@ function fetchResults() {
                     <table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable">
                         <tr>
                             <th>Filter IP:</th>
-                            <td><input type="text" id="filter_ip" class="input_20_table" placeholder="e.g. 192.168.1.100"></td>
+                            <td>
+                                <select id="filter_ip_select" class="input_option" onchange="document.getElementById('filter_ip').value = this.value;">
+                                    <option value="">-- Select Client --</option>
+                                </select>
+                                <input type="text" id="filter_ip" class="input_20_table" placeholder="e.g. 192.168.1.100">
+                            </td>
                         </tr>
                         <tr>
                             <th>Filter URL/Domain:</th>
