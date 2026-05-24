@@ -978,6 +978,14 @@ if [ -z "$CMDNOSCRIPT" ];then
 
                     URL=${LINE##*|}                                     # Last word ('|' delimiter)
 
+                    # Intelligent IP to likely Endpoint/Domain Resolution
+                    if echo "$URL" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+                        RESOLVED=$(nslookup "$URL" 2>/dev/null | grep "name = " | awk -F'name = ' '{print $2}' | sed 's/\.$//' | head -n 1)
+                        if [ -n "$RESOLVED" ]; then
+                            URL="$URL ($RESOLVED)"
+                        fi
+                    fi
+
 
                     # DEBUG_LINE=">"$LINE"<"
                     # DEBUG_FILTER_INUSE=">"$FILTER_INUSE"<"
