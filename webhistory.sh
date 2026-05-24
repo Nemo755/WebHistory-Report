@@ -1458,6 +1458,9 @@ remove_addon() {
     cru d WebHistoryAuto
     sed -i "/WebHistoryAuto/d" /jffs/scripts/services-start
 
+    rm -f /jffs/scripts/init-webhistory.sh
+    sed -i "/init-webhistory.sh/d" /jffs/scripts/services-start
+
     sed -i "/WebHistory_Report.sh/d" /jffs/configs/profile.add 2>/dev/null
 
     PAGE=$(nvram get webhistory_page)
